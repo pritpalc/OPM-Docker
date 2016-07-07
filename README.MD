@@ -66,9 +66,7 @@ Visit `http://ip_address:opm_port` to access OPM UI by default account.
 
 ####Note
 
-While the db_server have changed  access configurations,  OPM may have no permission to access the db_server, the file '.pgpass' need to be 
-
-created  using `nagios` account in the container.
+While the db_server have changed  access configurations,  OPM may have no permission to access the db_server, the file `.pgpass` need to be created  using `nagios` account in the container.
 
 ```
 docker exec -it container_name su nagios -c 'echo "db_ip:db_port:*:db_user:db_password" >> /home/nagios/.pgpass && chmod 600 /home/nagios/.pgpass'

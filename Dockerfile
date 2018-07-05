@@ -2,26 +2,26 @@ FROM koyeung/nagios
 MAINTAINER hyman/hyman@localgravity.com
 RUN apt-get update && \
     apt-get install -y wget curl libdbd-pg-perl
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main' > /etc/apt/sources.list.d/pgdg.list && \ 
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main' > /etc/apt/sources.list.d/pgdg.list && \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN apt-get update && \
-    apt-get install -y postgresql-9.5 postgresql-server-dev-9.5 && \
+    apt-get install -y postgresql-9.6 postgresql-server-dev-9.6 && \
     apt-get clean
 ENV TZ Asia/Hong_Kong
-RUN mkdir -p /usr/local/src/opm && \ 
-    cd /usr/local/src/opm && \ 
-    wget https://github.com/OPMDG/opmdg.github.io/releases/download/REL_2_3/OPM_2_3.zip && \ 
-    unzip OPM_2_3.zip && \ 
-    mv /usr/local/src/opm/opm-core-REL_2_3 /usr/local/src/opm/opm-core && \ 
-    mv /usr/local/src/opm/opm-wh_nagios-REL_2_3 /usr/local/src/opm/opm-wh_nagios && \ 
-    mv /usr/local/src/opm/check_pgactivity-REL1_13 /usr/local/src/opm/check_pgactivity && \ 
-    cd /usr/local/src/opm/opm-core/pg && \ 
-    make install && \ 
-    cd /usr/local/src/opm/opm-wh_nagios/pg && \ 
+RUN mkdir -p /usr/local/src/opm && \
+    cd /usr/local/src/opm && \
+    wget https://github.com/OPMDG/opmdg.github.io/releases/download/REL_2_4/OPM_2_4.zip && \
+    unzip OPM_2_4.zip && \
+    mv /usr/local/src/opm/opm-core-REL_2_4 /usr/local/src/opm/opm-core && \
+    mv /usr/local/src/opm/opm-wh_nagios-REL_2_4 /usr/local/src/opm/opm-wh_nagios && \
+    mv /usr/local/src/opm/check_pgactivity-2.0 /usr/local/src/opm/check_pgactivity && \
+    cd /usr/local/src/opm/opm-core/pg && \
     make install && \
-    rm /usr/local/src/opm/OPM_2_3.zip 
-RUN echo "* * * * * psql -c 'SELECT wh_nagios.dispatch_record()' opm" >> /var/spool/cron/crontabs/postgres && \ 
-    chown postgres:crontab /var/spool/cron/crontabs/postgres && \ 
+    cd /usr/local/src/opm/opm-wh_nagios/pg && \
+    make install && \
+    rm /usr/local/src/opm/OPM_2_4.zip
+RUN echo "* * * * * psql -c 'SELECT wh_nagios.dispatch_record()' opm" >> /var/spool/cron/crontabs/postgres && \
+    chown postgres:crontab /var/spool/cron/crontabs/postgres && \
     chmod 600 /var/spool/cron/crontabs/postgres
 COPY ./nagios_dispatcher.conf /usr/local/etc/nagios_dispatcher.conf
 COPY ./opm.conf /usr/local/src/opm/opm-core/ui
@@ -41,8 +41,7 @@ RUN mkdir /docker-entrypoint-initdb.d/
 RUN cp /usr/local/src/opm/check_pgactivity/check_pgactivity /usr/local/nagios/libexec/check_pgactivity
 COPY ./nagios/etc/ /usr/local/nagios/etc/
 COPY ./entrypoint.sh /entrypoint.sh
-COPY ./pg_hba.conf /etc/postgresql/9.5/main/pg_hba.conf
+COPY ./pg_hba.conf /etc/postgresql/9.6/main/pg_hba.conf
 COPY ./docker-entrypoint-initdb.d/ /docker-entrypoint-initdb.d/
 ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80 3000 5432
-
